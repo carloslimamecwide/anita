@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mariscos da Anita
 
-## Getting Started
+Landing page HORECA para distribuição de marisco fresco a partir de **Olhão** (Algarve e Alentejo).
 
-First, run the development server:
+- Next.js (App Router) + TypeScript + Tailwind
+- Formulário de contacto → email via **Resend** (grátis)
+- Pedidos reais via **WhatsApp** (`wa.me`)
+- Deploy na VPS com **Docker + GitHub Actions (ghcr.io)**
+
+## Desenvolvimento local
 
 ```bash
+cd ~/Desktop/mariscos-da-anita
+cp .env.example .env
+# edita .env com as tuas chaves
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Variáveis de ambiente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variável | Descrição |
+|----------|-----------|
+| `RESEND_API_KEY` | API key do [Resend](https://resend.com) |
+| `CONTACT_TO_EMAIL` | Email da Anita (destino) |
+| `CONTACT_FROM_EMAIL` | Remetente verificado no Resend |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | Número internacional sem `+` (ex: `351912345678`) |
+| `NEXT_PUBLIC_SITE_URL` | URL pública do site |
 
-## Learn More
+**Resend em testes:** podes usar `CONTACT_FROM_EMAIL=Mariscos da Anita <onboarding@resend.dev>` e só enviar para o email da conta Resend até verificares o domínio.
 
-To learn more about Next.js, take a look at the following resources:
+## Produção na VPS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Setup inicial
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Criar repo no GitHub** e fazer push do código
+2. **DNS:** Criar registo `A` para `mariscosdaanita.webfusionlab.pt` → IP da VPS
+3. **Instalar self-hosted runner:**
+   ```bash
+   # Ir a Settings → Actions → Runners → New self-hosted runner
+   # Copiar e executar os comandos de download + config
+   sudo ./svc.sh install
+   sudo ./svc.sh start
+   ```
+4. **Configurar .env na VPS:**
+   ```bash
+   cd /opt/mariscos-da-anita
+   cp .env.example .env
+   nano .env  # preencher valores reais
+   ```
+5. **Correr o setup:**
+   ```bash
+   chmod +x setup-vps.sh
+   ./setup-vps.sh
+   ```
 
-## Deploy on Vercel
+### Deploy automático
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Cada push ao branch `master`:
+1. GitHub Actions constrói a imagem Docker → push para `ghcr.io`
+2. Self-hosted runner na VPS faz pull + restart automático
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Deploy manual
+
+```bash
+cd /opt/mariscos-da-anita
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### Ver logs
+
+```bash
+docker compose -f docker-compose.production.yml logs -f web
+```
+
+### Rollback
+
+```bash
+# Na VPS, voltar à imagem anterior
+docker compose -f docker-compose.production.yml up -d web --no-deps
+```
+
+## Estrutura
+
+```
+src/app/                 # páginas e API
+src/app/api/contact/     # POST formulário → Resend
+src/components/          # secções da landing
+src/lib/                 # validação, email, whatsapp, rate-limit
+```
+
+## Conteúdo a personalizar
+
+1. Número WhatsApp e emails no `.env`
+2. Textos em `src/components/*` (copy placeholder)
+3. Fotos reais da Anita (substituir URLs Unsplash no Hero/About)
+4. Domínio no DNS + nginx.conf
+
+## Scripts
+
+| Comando | Função |
+|---------|--------|
+| `npm run dev` | Desenvolvimento |
+| `npm run build` | Build produção |
+| `npm start` | Servir build local |
+| `npm run lint` | ESLint |
