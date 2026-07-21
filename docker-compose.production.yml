@@ -10,8 +10,7 @@ services:
       - /etc/cloudflare/webfusionlab.pt/cert.pem:/etc/cloudflare/cert.pem:ro
       - /etc/cloudflare/webfusionlab.pt/key.pem:/etc/cloudflare/key.pem:ro
     depends_on:
-      web:
-        condition: service_healthy
+      - web
     networks:
       - web
     deploy:
@@ -19,11 +18,6 @@ services:
         limits:
           memory: 128M
           cpus: "0.50"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:80"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
 
   web:
     image: ghcr.io/carloslimamecwide/anita:latest
@@ -41,12 +35,6 @@ services:
         limits:
           memory: 512M
           cpus: "1.0"
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 40s
 
 networks:
   web:
