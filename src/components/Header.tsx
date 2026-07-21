@@ -97,15 +97,6 @@ export function Header() {
       {open && (
         <div className="fixed inset-0 z-30 bg-atlantic-deep pt-20 lg:hidden" role="dialog" aria-modal="true">
           <nav className="section-pad flex h-full flex-col gap-1 pt-4" aria-label="Menu móvel">
-            <div className="mb-5 inline-flex self-start rounded-xl bg-[#f5efe3] px-4 py-3">
-              <Image
-                src="/logo-full.png"
-                alt="Mariscos da Anita — Olhão"
-                width={170}
-                height={41}
-                className="h-9 w-auto"
-              />
-            </div>
             {links.map((link, i) => (
               <a
                 key={link.href}

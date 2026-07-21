@@ -7,8 +7,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - /etc/cloudflare/cert.pem:/etc/cloudflare/cert.pem:ro
-      - /etc/cloudflare/key.pem:/etc/cloudflare/key.pem:ro
+      - /etc/cloudflare/webfusionlab.pt/cert.pem:/etc/cloudflare/cert.pem:ro
+      - /etc/cloudflare/webfusionlab.pt/key.pem:/etc/cloudflare/key.pem:ro
     depends_on:
       - web
     networks:
